@@ -1,10 +1,12 @@
 import math
 import re
+import matplotlib.pyplot as plt
 
-from formula import Formula
+from core.utilities import find_close_numbers
+from core.formula import Formula
 
 
-def function_from_formula(formula) -> Formula:
+def function_from_formula(formula: str, xmin: int, xmax: int) -> Formula:
     expression = None
     if '?' in formula:
         splited_formula = formula.split('?')
@@ -23,14 +25,16 @@ def function_from_formula(formula) -> Formula:
         f"lambda x: {output_formula}{f'if {expression} else None' if expression is not None else ''}",
         {"sqrt": math.sqrt}
     )
-    return Formula(function=func, formula=formula, expression=expression)
+    return Formula(
+        function=func,
+        formula=formula,
+        expression=expression,
+        xmin=xmin,
+        xmax=xmax
+    )
 
 
 def create_graph_positions(formula: Formula) -> Formula:
-    # Интервал изменения переменной по оси X
-    xmin = -16
-    xmax = 16
-
     # Список координат по оси x
     xlist = []
 
@@ -38,7 +42,7 @@ def create_graph_positions(formula: Formula) -> Formula:
     function = formula.function
 
     # Заполняем выше указанный список
-    for num in range(xmin, xmax+1):
+    for num in range(formula.xmin, formula.xmax+1):
         result = function(num)
 
         if result is None:
@@ -65,3 +69,51 @@ def create_graph_positions(formula: Formula) -> Formula:
     formula.set_x_coordinates(xlist).set_y_coordinates(ylist)
 
     return formula
+
+
+def draw_graph(text: str, x_coords_mode: str, y_coords_mode: str, xmin: int, xmax: int):
+    xticks = []
+    yticks = []
+
+    for text_part in text.split(','):
+        func = function_from_formula(formula=text_part.strip(), xmin=xmin, xmax=xmax)
+        formula = create_graph_positions(func)
+
+        xlist = formula.x_coordinates
+        ylist = formula.y_coordinates
+
+        # Нарисуем одномерный график
+        plt.plot(xlist, ylist, marker='.', ls='-')
+
+        xticks.extend(xlist)
+        yticks.extend(ylist)
+
+    # Нарисуем сетку графика
+    plt.grid()
+
+    xticks = list(set(xticks))
+    yticks = list(set(yticks))
+
+    # Сортируем списки тиков
+    xticks.sort()
+    yticks.sort()
+
+    if not x_coords_mode == 'disable':
+        if x_coords_mode == 'show':
+            plt.yticks(yticks)
+        else:
+            if len(find_close_numbers(xticks)) < 4 and x_coords_mode == 'auto':
+                plt.xticks(xticks)
+
+    if not y_coords_mode == 'disable':
+        if y_coords_mode == 'show':
+            plt.yticks(yticks)
+        else:
+            if len(find_close_numbers(xticks)) < 4 and y_coords_mode == 'auto':
+                plt.yticks(yticks)
+
+    # Сохраняем созданный график
+    plt.savefig('graph.png')
+
+    # Покажем окно с нарисованным граф
+    plt.show()
