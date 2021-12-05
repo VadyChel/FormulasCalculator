@@ -6,15 +6,27 @@ class Formula:
             self,
             function: typing.Callable,
             formula: str,
+            xmin: int,
+            xmax: int,
             x_coordinates: typing.List[int] = [],
             y_coordinates: typing.List[int] = [],
             expression: str = None
     ):
+        self._xmin: int = xmin
+        self._xmax: int = xmax
         self._function: typing.Callable = function
         self._formula: str = formula
         self._x_coordinates: typing.List[int] = x_coordinates
         self._y_coordinates: typing.List[int] = y_coordinates
         self._expression: str = expression
+
+    @property
+    def xmin(self):
+        return self._xmin
+
+    @property
+    def xmax(self):
+        return self._xmax
 
     @property
     def formula(self):
