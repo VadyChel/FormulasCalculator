@@ -1,13 +1,19 @@
 import math
 import re
 import matplotlib.pyplot as plt
+import numpy as np
 
 from core.exceptions import CalculationException, SyntaxException
 from core.utilities import find_close_numbers
 from core.formula import Formula
 
 
-def function_from_formula(formula: str, xmin: int, xmax: int) -> Formula:
+def function_from_formula(
+        formula: str,
+        xmin: int,
+        xmax: int,
+        show_only_whole_numbers: bool
+) -> Formula:
     expression = None
     if '?' in formula:
         splited_formula = formula.split('?')
@@ -35,7 +41,8 @@ def function_from_formula(formula: str, xmin: int, xmax: int) -> Formula:
         formula=formula,
         expression=expression,
         xmin=xmin,
-        xmax=xmax
+        xmax=xmax,
+        show_only_whole_numbers=show_only_whole_numbers
     )
 
 
@@ -46,26 +53,29 @@ def create_graph_positions(formula: Formula) -> Formula:
     # Получаем функцию формулы
     function = formula.function
 
-    # Заполняем выше указанный список
-    for num in range(formula.xmin, formula.xmax+1):
-        result = function(num)
+    if formula.show_only_whole_numbers:
+        # Заполняем выше указанный список
+        for num in range(formula.xmin, formula.xmax+1):
+            result = function(num)
 
-        if result is None:
-            continue
+            if result is None:
+                continue
 
-        # Проверяем только не целые числа
-        if isinstance(result, float):
-            # Получаем список чисел после запятой у числа которое возвратила функция графика
-            numbers_after_comma = list(str(result).split('.')[1:][0]) if num != 0 else [0]
+            # Проверяем только не целые числа
+            if isinstance(result, float):
+                # Получаем список чисел после запятой у числа которое возвратила функция графика
+                numbers_after_comma = list(str(result).split('.')[1:][0]) if num != 0 else [0]
 
-            # Суммируем числа после запятой
-            sum_numbers_after_comma = sum(list(map(int, numbers_after_comma)))
-        else:
-            sum_numbers_after_comma = 0
+                # Суммируем числа после запятой
+                sum_numbers_after_comma = sum(list(map(int, numbers_after_comma)))
+            else:
+                sum_numbers_after_comma = 0
 
-        # Проверка на целое число
-        if sum_numbers_after_comma == 0:
-            xlist.append(num)
+            # Проверка на целое число
+            if sum_numbers_after_comma == 0:
+                xlist.append(num)
+    else:
+        xlist = np.linspace(formula.xmin, formula.xmax, abs(formula.xmin-formula.xmax)*10)
 
     # Вычислим значение функции в заданных точках
     ylist = [function(x) for x in xlist]
@@ -76,12 +86,24 @@ def create_graph_positions(formula: Formula) -> Formula:
     return formula
 
 
-def draw_graph(text: str, x_coords_mode: str, y_coords_mode: str, xmin: int, xmax: int):
+def draw_graph(
+        text: str,
+        x_coords_mode: str,
+        y_coords_mode: str,
+        xmin: int,
+        xmax: int,
+        show_only_whole_numbers: bool
+):
     xticks = []
     yticks = []
 
     for text_part in text.split(','):
-        func = function_from_formula(formula=text_part.strip(), xmin=xmin, xmax=xmax)
+        func = function_from_formula(
+            formula=text_part.strip(),
+            xmin=xmin,
+            xmax=xmax,
+            show_only_whole_numbers=show_only_whole_numbers
+        )
         try:
             formula = create_graph_positions(func)
         except (NameError, ValueError):

@@ -8,10 +8,12 @@ class Formula:
             formula: str,
             xmin: int,
             xmax: int,
+            show_only_whole_numbers: bool,
             x_coordinates: typing.List[int] = [],
             y_coordinates: typing.List[int] = [],
             expression: str = None
     ):
+        self._show_only_whole_numbers: bool = show_only_whole_numbers
         self._xmin: int = xmin
         self._xmax: int = xmax
         self._function: typing.Callable = function
@@ -19,6 +21,10 @@ class Formula:
         self._x_coordinates: typing.List[int] = x_coordinates
         self._y_coordinates: typing.List[int] = y_coordinates
         self._expression: str = expression
+
+    @property
+    def show_only_whole_numbers(self):
+        return self._show_only_whole_numbers
 
     @property
     def xmin(self):

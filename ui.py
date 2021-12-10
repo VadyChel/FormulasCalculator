@@ -1,7 +1,7 @@
 import os
 import re
-from tkinter import Tk, Text, Canvas, messagebox
-from tkinter.ttk import *
+from tkinter import Tk, Text, Canvas, messagebox, Checkbutton, BooleanVar
+from tkinter.ttk import Label, Entry, Style, Combobox, Button
 
 from PIL import ImageTk, Image
 
@@ -122,12 +122,25 @@ class App(Tk):
         self.x_coords_mode_label.place(x=5, y=54)
         self.y_coords_mode_label.place(x=125, y=54)
 
+        # Только целые или нет
+        self.show_only_whole_numbers = BooleanVar()
+        self.whole_numbers_checkbox = Checkbutton(
+            self.window,
+            variable=self.show_only_whole_numbers,
+            onvalue=True,
+            offvalue=False
+        )
+        self.whole_numbers_checkbox.place(x=10, y=100, width=20, height=20)
+
+        self.whole_numbers_checkbox_label = Label(self.window, text='Show only whole numbers')
+        self.whole_numbers_checkbox_label.place(x=30, y=100)
+
         # Input for formulas
         self.input_for_formula_label = Label(self.window, text='Formula', style="Label.TLabel")
-        self.input_for_formula_label.place(x=5, y=100)
+        self.input_for_formula_label.place(x=5, y=120)
 
         self.input_for_formula = Text(self.window, font=("Segoe UI", 10))
-        self.input_for_formula.place(x=10, y=120, width=220, height=100)
+        self.input_for_formula.place(x=10, y=140, width=220, height=100)
 
         # Draw and clear buttons
         self.draw_btn = Button(
@@ -144,13 +157,13 @@ class App(Tk):
         try:
             self.canvas = Canvas(root, width=640, height=480)
             self.canvas.place(x=240, y=10)
-
             draw_graph(
                 text=self.input_for_formula.get("1.0", "end"),
                 x_coords_mode=self.x_coords_mode.get().lower(),
                 y_coords_mode=self.y_coords_mode.get().lower(),
                 xmin=int(self.xmin.get()),
-                xmax=int(self.xmax.get())
+                xmax=int(self.xmax.get()),
+                show_only_whole_numbers=self.show_only_whole_numbers.get()
             )
         except CalculationException:
             messagebox.showerror(
