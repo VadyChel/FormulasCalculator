@@ -1,6 +1,6 @@
 import os
+import re
 from tkinter import Tk, Text, Canvas
-from tkinter.font import Font
 from tkinter.ttk import *
 
 from PIL import ImageTk, Image
@@ -33,9 +33,29 @@ class App(Tk):
         self.style.configure(
             "TCombobox", font=("Segoe UI", 16), foreground="#444444"
         )
-
+        self.vcmd = (
+            self.window.register(self.validate_numbers),
+            '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W'
+        )
         # Create window
         self.create_window()
+
+    def validate_numbers(self, d, i, P, s, edited_text, v, V, W):
+        # d = Type of action (1=insert, 0=delete, -1 for others)
+        # i = index of char string to be inserted/deleted, or -1
+        # P = value of the entry if the edit is allowed
+        # s = value of entry prior to editing
+        # edited_text = the text string being inserted or deleted, if any
+        # v = the type of validation that is currently set
+        # V = the type of validation that triggered the callback
+        #      (key, focusin, focusout, forced)
+        # W = the tk name of the widget
+
+        # Check if string is number or number with - on the front
+        if edited_text.isdigit() or re.match('-?\d', edited_text) is not None or edited_text == '-':
+            return True
+
+        return False
 
     def create_window(self):
         self.window.title("FormulasCalculator")
@@ -59,8 +79,18 @@ class App(Tk):
         self.xmin_label.place(x=5, y=10)
         self.xmax_label.place(x=125, y=10)
 
-        self.xmin = Entry(self.window, style="XminMaxInput.TEntry")
-        self.xmax = Entry(self.window, style="XminMaxInput.TEntry")
+        self.xmin = Entry(
+            self.window,
+            style="XminMaxInput.TEntry",
+            validate="key",
+            validatecommand=self.vcmd
+        )
+        self.xmax = Entry(
+            self.window,
+            style="XminMaxInput.TEntry",
+            validate="key",
+            validatecommand=self.vcmd
+        )
 
         self.xmin.place(x=10, y=30, width=100, height=20)
         self.xmax.place(x=130, y=30, width=100, height=20)
