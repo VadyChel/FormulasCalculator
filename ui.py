@@ -1,9 +1,11 @@
 import os
 import re
-from tkinter import Tk, Text, Canvas
+from tkinter import Tk, Text, Canvas, messagebox
 from tkinter.ttk import *
 
 from PIL import ImageTk, Image
+
+from core.exceptions import CalculationException, SyntaxException
 from core.formulas_analyzer import draw_graph
 
 
@@ -139,20 +141,32 @@ class App(Tk):
         self.clear_btn.place(x=10, y=400, width=220, height=40)
 
     def draw_and_show_graph(self):
-        draw_graph(
-            text=self.input_for_formula.get("1.0", "end"),
-            x_coords_mode=self.x_coords_mode.get().lower(),
-            y_coords_mode=self.y_coords_mode.get().lower(),
-            xmin=int(self.xmin.get()),
-            xmax=int(self.xmax.get())
-        )
+        try:
+            self.canvas = Canvas(root, width=640, height=480)
+            self.canvas.place(x=240, y=10)
 
-        # Create image in window
-        self.canvas = Canvas(root, width=640, height=480)
-        self.canvas.place(x=240, y=10)
-        img = ImageTk.PhotoImage(Image.open("graph.png"))
-        self.canvas.create_image(0, 0, anchor='nw', image=img)
-        self.canvas.image = img
+            draw_graph(
+                text=self.input_for_formula.get("1.0", "end"),
+                x_coords_mode=self.x_coords_mode.get().lower(),
+                y_coords_mode=self.y_coords_mode.get().lower(),
+                xmin=int(self.xmin.get()),
+                xmax=int(self.xmax.get())
+            )
+        except CalculationException:
+            messagebox.showerror(
+                title='Error in calculation',
+                message='You wrote wrong formula'
+            )
+        except SyntaxException:
+            messagebox.showerror(
+                title='Wrong syntax',
+                message='You wrote wrong formula syntax'
+            )
+        else:
+            # Create image in window
+            img = ImageTk.PhotoImage(Image.open("graph.png"))
+            self.canvas.create_image(0, 0, anchor='nw', image=img)
+            self.canvas.image = img
 
     def clear(self):
         self.xmin.delete(0, "end")

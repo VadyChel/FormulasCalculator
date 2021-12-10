@@ -2,6 +2,7 @@ import math
 import re
 import matplotlib.pyplot as plt
 
+from core.exceptions import CalculationException, SyntaxException
 from core.utilities import find_close_numbers
 from core.formula import Formula
 
@@ -21,10 +22,14 @@ def function_from_formula(formula: str, xmin: int, xmax: int) -> Formula:
         found_number = re.match('\d*', found_x_and_number).group(0)
         output_formula = f"{found_number if found_number else '1'} * x{formula.replace(found_x_and_number, '')}"
 
-    func = eval(
-        f"lambda x: {output_formula}{f'if {expression} else None' if expression is not None else ''}",
-        {"sqrt": math.sqrt}
-    )
+    try:
+        func = eval(
+            f"lambda x: {output_formula}{f'if {expression} else None' if expression is not None else ''}",
+            {"sqrt": math.sqrt}
+        )
+    except SyntaxError:
+        raise SyntaxException
+
     return Formula(
         function=func,
         formula=formula,
@@ -77,7 +82,10 @@ def draw_graph(text: str, x_coords_mode: str, y_coords_mode: str, xmin: int, xma
 
     for text_part in text.split(','):
         func = function_from_formula(formula=text_part.strip(), xmin=xmin, xmax=xmax)
-        formula = create_graph_positions(func)
+        try:
+            formula = create_graph_positions(func)
+        except (NameError, ValueError):
+            raise CalculationException()
 
         xlist = formula.x_coordinates
         ylist = formula.y_coordinates
