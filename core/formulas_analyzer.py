@@ -92,7 +92,8 @@ def draw_graph(
         y_coords_mode: str,
         xmin: int,
         xmax: int,
-        show_only_whole_numbers: bool
+        show_only_whole_numbers: bool,
+        show_points: bool
 ):
     xticks = []
     yticks = []
@@ -113,7 +114,7 @@ def draw_graph(
         ylist = formula.y_coordinates
 
         # Нарисуем одномерный график
-        plt.plot(xlist, ylist, marker='.', ls='-')
+        plt.plot(xlist, ylist, marker='.' if show_points else '', ls='-')
 
         xticks.extend(xlist)
         yticks.extend(ylist)

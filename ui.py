@@ -122,7 +122,7 @@ class App(Tk):
         self.x_coords_mode_label.place(x=5, y=54)
         self.y_coords_mode_label.place(x=125, y=54)
 
-        # Только целые или нет
+        # Only whole numbers or non-whole
         self.show_only_whole_numbers = BooleanVar()
         self.whole_numbers_checkbox = Checkbutton(
             self.window,
@@ -135,12 +135,26 @@ class App(Tk):
         self.whole_numbers_checkbox_label = Label(self.window, text='Show only whole numbers')
         self.whole_numbers_checkbox_label.place(x=30, y=100)
 
+        # Show points on the graph line or disable
+        self.points_view_variable = BooleanVar()
+        self.points_view = Checkbutton(
+            self.window,
+            variable=self.points_view_variable,
+            onvalue=True,
+            offvalue=False
+        )
+        self.points_view.select()
+        self.points_view.place(x=10, y=120, width=20, height=20)
+
+        self.points_view_label = Label(self.window, text='Show points on the graph line')
+        self.points_view_label.place(x=30, y=120)
+
         # Input for formulas
         self.input_for_formula_label = Label(self.window, text='Formula', style="Label.TLabel")
-        self.input_for_formula_label.place(x=5, y=120)
+        self.input_for_formula_label.place(x=5, y=140)
 
         self.input_for_formula = Text(self.window, font=("Segoe UI", 10))
-        self.input_for_formula.place(x=10, y=140, width=220, height=100)
+        self.input_for_formula.place(x=10, y=160, width=220, height=100)
 
         # Draw and clear buttons
         self.draw_btn = Button(
@@ -163,7 +177,8 @@ class App(Tk):
                 y_coords_mode=self.y_coords_mode.get().lower(),
                 xmin=int(self.xmin.get()),
                 xmax=int(self.xmax.get()),
-                show_only_whole_numbers=self.show_only_whole_numbers.get()
+                show_only_whole_numbers=self.show_only_whole_numbers.get(),
+                show_points=self.points_view_variable.get()
             )
         except CalculationException:
             messagebox.showerror(
