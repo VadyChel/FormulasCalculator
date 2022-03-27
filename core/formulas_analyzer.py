@@ -31,7 +31,7 @@ def function_from_formula(
     try:
         func = eval(
             f"lambda x: {output_formula}{f'if {expression} else None' if expression is not None else ''}",
-            {"sqrt": math.sqrt}
+            {"sqrt": math.sqrt, "y": eval(f"lambda x: {output_formula}")}
         )
     except SyntaxError:
         raise SyntaxException
@@ -131,16 +131,16 @@ def draw_graph(
 
     if not x_coords_mode == 'disable':
         if x_coords_mode == 'show':
-            plt.yticks(yticks)
+            plt.xticks(xticks)
         else:
-            if len(find_close_numbers(xticks)) < 4 and x_coords_mode == 'auto':
+            if len(find_close_numbers(xticks)) < 2 and x_coords_mode == 'auto':
                 plt.xticks(xticks)
 
     if not y_coords_mode == 'disable':
         if y_coords_mode == 'show':
             plt.yticks(yticks)
         else:
-            if len(find_close_numbers(xticks)) < 4 and y_coords_mode == 'auto':
+            if len(find_close_numbers(yticks)) < 2 and y_coords_mode == 'auto':
                 plt.yticks(yticks)
 
     # Сохраняем созданный график
