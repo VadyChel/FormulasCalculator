@@ -54,7 +54,7 @@ class App(Tk):
         # W = the tk name of the widget
 
         # Check if string is number or number with - on the front
-        if edited_text.isdigit() or re.match('-?\d', edited_text) is not None or edited_text == '-':
+        if edited_text.isdigit() or re.match('-?\d+', edited_text) is not None or edited_text == '-':
             return True
 
         return False
@@ -168,6 +168,40 @@ class App(Tk):
         self.clear_btn.place(x=10, y=400, width=220, height=40)
 
     def draw_and_show_graph(self):
+        xmin_value = self.xmin.get()
+        xmax_value = self.xmax.get()
+        if not xmin_value:
+            messagebox.showerror(
+                title='Error in input',
+                message="You didn't write x min"
+            )
+            return
+
+        if not xmax_value:
+            messagebox.showerror(
+                title='Error in input',
+                message="You didn't write x max"
+            )
+            return
+
+        try:
+            xmin_value = int(xmin_value)
+        except ValueError:
+            messagebox.showerror(
+                title='Error in input',
+                message="You write not a number in x min input"
+            )
+            return
+
+        try:
+            xmax_value = int(xmax_value)
+        except ValueError:
+            messagebox.showerror(
+                title='Error in input',
+                message="You write not a number in x min input"
+            )
+            return
+
         try:
             self.canvas = Canvas(root, width=640, height=480)
             self.canvas.place(x=240, y=10)
@@ -175,8 +209,8 @@ class App(Tk):
                 text=self.input_for_formula.get("1.0", "end"),
                 x_coords_mode=self.x_coords_mode.get().lower(),
                 y_coords_mode=self.y_coords_mode.get().lower(),
-                xmin=int(self.xmin.get()),
-                xmax=int(self.xmax.get()),
+                xmin=xmin_value,
+                xmax=xmax_value,
                 show_only_whole_numbers=self.show_only_whole_numbers.get(),
                 show_points=self.points_view_variable.get()
             )
